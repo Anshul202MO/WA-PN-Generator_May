@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teji Mandi — Content Generator v9</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+:root{
+  --navy:#1A1A2E;--red:#E94560;--gold:#C9A84C;--cream:#FFF8E7;--cream2:#FFF3D0;
+  --border:#E0D8CC;--text:#1A1A2E;--muted:#7A7A8C;--green:#1E8C4A;--radius:10px;
+  --purple:#4A1A6A;--blue:#1A3A6A;--salered:#8B1A1A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:#F7F5F0;color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+header{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:30px;height:30px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"DM Serif Display",serif;color:#fff;font-size:16px}
+.logo-text{font-family:"DM Serif Display",serif;color:#fff;font-size:17px}
+.logo-sub{color:var(--gold);font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase}
+.logo-ver{color:rgba(255,255,255,.35);font-size:9px;margin-left:6px;font-weight:500}
+header nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tab-btn{background:transparent;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;color:rgba(255,255,255,.7);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;padding:5px 12px;cursor:pointer;transition:all .2s}
+.tab-btn.active,.tab-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+.hbtn{font-family:"DM Sans",sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:16px;cursor:pointer;border:none;transition:all .2s}
+.hbtn-gold{background:var(--gold);color:var(--navy)}
+.hbtn-sale{background:#7A1A1A;color:#fff}
+.hbtn-admin{background:transparent;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
+.hbtn-admin.active{background:#2E4A7A;border-color:#5a80c0;color:#fff}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
+
+/* ── MAIN ── */
+main{max-width:1600px;margin:0 auto;padding:20px 16px 60px}
+
+/* ── BANNERS ── */
+.banner{border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:12px}
+.banner-key{background:linear-gradient(135deg,#fff9ee,#fff3d0);border:1.5px solid var(--gold)}
+.banner-admin{background:#f0f4ff;border:1.5px solid #90a8f0}
+.banner-sale{border:2.5px solid var(--red);background:#fff5f7;display:none}
+.banner-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.banner h3{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.banner p{font-size:11.5px;color:var(--muted);line-height:1.5}
+.banner a{color:var(--red);text-decoration:none;font-weight:600}
+.row{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.fi{flex:1;min-width:140px;padding:7px 11px;border-radius:6px;border:1.5px solid var(--border);font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);background:#fff}
+.fi:focus{outline:none;border-color:var(--gold)}
+.api-saved{color:var(--green);font-size:11px;font-weight:600;display:none}
+
+/* ── QUICK ENTRY FORM ── */
+.qe-section{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.qe-section h3{font-family:"DM Serif Display",serif;font-size:16px;color:var(--navy);margin-bottom:4px}
+.qe-section p{font-size:11px;color:var(--muted);margin-bottom:12px}
+.qe-tabs{display:flex;gap:4px;margin-bottom:12px}
+.qe-tab{background:transparent;border:1.5px solid var(--border);border-radius:6px;padding:4px 14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:"DM Sans",sans-serif;transition:all .15s}
+.qe-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.qe-hint{font-size:11px;color:var(--muted);margin-bottom:8px;padding:8px 10px;background:#f9f8f5;border-radius:6px;border-left:3px solid var(--gold)}
+.qe-hint code{background:#efe9d8;padding:1px 4px;border-radius:3px;font-size:10px;font-family:monospace}
+.qe-textarea{width:100%;min-height:120px;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);background:#fafaf8;resize:vertical;line-height:1.7}
+.qe-textarea:focus{outline:none;border-color:var(--red);background:#fff}
+.qe-textarea::placeholder{color:#bbb;font-style:italic}
+.qe-btns{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.qe-parse-msg{font-size:11px;color:var(--green);font-weight:600;display:none}
+.qe-parse-err{font-size:11px;color:var(--red);display:none}
+
+/* ── SECONDARY UPLOAD ── */
+.upload-secondary{margin-bottom:14px}
+.upload-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--muted);font-weight:600;user-select:none;width:fit-content}
+.upload-toggle:hover{color:var(--navy)}
+.upload-toggle-icon{font-size:13px;transition:transform .2s}
+.upload-toggle-icon.open{transform:rotate(90deg)}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);background:#fafaf8;padding:14px;text-align:center;cursor:pointer;transition:background .2s;margin-top:8px;display:none}
+.upload-zone:hover{background:var(--cream2);border-color:var(--gold)}
+.upload-zone input{display:none}
+.upload-zone h3{font-size:12px;font-weight:600;color:var(--navy)}
+.upload-zone p{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── ROW COUNTER ── */
+.row-counter{display:inline-flex;align-items:center;gap:6px;background:#f0f4ff;border:1px solid #c0d0f0;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;color:#2E4A7A}
+.row-counter-dot{width:6px;height:6px;border-radius:50%;background:#2E4A7A}
+
+/* ── TABLE AREA ── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head h2{font-family:"DM Serif Display",serif;font-size:18px;color:var(--navy)}
+.badge{background:var(--navy);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:16px}
+.ctrls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.btn{font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#c73650}.btn-red:disabled{background:#ccc;cursor:not-allowed}
+.btn-out{background:transparent;border:1.5px solid var(--navy);color:var(--navy)}.btn-out:hover{background:var(--navy);color:#fff}
+.btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:#b8922e}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#166e3a}
+.btn-navy{background:#2E4A7A;color:#fff}.btn-navy:hover{background:#1e3460}
+.btn-sm{padding:4px 10px;font-size:11px}
+.tw{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--navy);color:#fff;padding:8px 8px;text-align:left;font-weight:600;font-size:10px;white-space:nowrap}
+th.out{background:#7A5C0F} th.revc{background:#2E4A7A} th.perfc{background:#1A4A2E}
+th.tonec{background:#4A1A6A} th.refc{background:#1A3A6A} th.salec{background:#7A1A1A}
+tbody tr:nth-child(even){background:#FAFAF8}
+tbody td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+td.out{background:var(--cream)} td.revc{background:#f0f4ff} td.perfc{background:#f0fff6}
+td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#fff5f5}
+.ifield{width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:var(--text);background:#fff;resize:vertical;min-height:30px}
+.ifield:focus{outline:none;border-color:var(--red)}
+.sfield{width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:var(--text);background:#fff;cursor:pointer}
+.sfield:focus{outline:none;border-color:var(--red)}
+.rfield{width:100%;border:1px solid #b0c4e8;border-radius:5px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:var(--text);background:#f8f9ff;resize:vertical;min-height:30px}
+.rfield:focus{outline:none;border-color:#4a7fd4}
+.ref-code-wrap{margin-top:5px}
+.ref-req{font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.ref-code-input{width:100%;border:1.5px solid var(--red);border-radius:5px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;background:#fff5f5}
+.ref-code-input:focus{outline:none;border-color:#a01830}
+.sale-flag{display:inline-flex;align-items:center;gap:3px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-bottom:4px}
+.sale-toggle-wrap{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:10px;color:var(--muted)}
+.out-wrap{font-size:11px}
+.out-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:5px;display:flex;justify-content:space-between}
+.out-lbl span{font-size:9px;color:var(--gold);font-style:italic;font-weight:400;text-transform:none}
+.out-edit{width:100%;border:1px dashed #d4b86a;border-radius:5px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:#5C4000;background:#fffdf5;resize:vertical;min-height:28px;line-height:1.5;margin-top:2px}
+.out-edit:focus{outline:none;border:1.5px solid var(--gold);background:#fffbee}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:16px;font-size:10px;font-weight:600;white-space:nowrap}
+.p-pending{background:#EEE;color:#888}.p-running{background:#FFF3D0;color:#8B6914}
+.p-done{background:#D4F0E0;color:#1E6B3A}.p-approved{background:var(--green);color:#fff}.p-error{background:#FFE5E5;color:#C0392B}
+.pdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-running .pdot{animation:blink .8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.prog-wrap{height:4px;background:#E0D8CC;border-radius:2px;margin-bottom:10px;display:none}
+.prog-bar{height:100%;background:var(--red);border-radius:2px;transition:width .3s}
+.sw{display:flex;flex-direction:column;gap:4px}
+.stars{display:flex;gap:2px}
+.star{font-size:15px;color:#ddd;line-height:1;user-select:none}
+.star.active{color:var(--gold)}.star.clickable{cursor:pointer}.star.clickable:hover{color:var(--gold)}
+.rlbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:1px 6px;border-radius:8px}
+.rl-none{color:#bbb}.rl-poor{background:#FFE5E5;color:#C0392B}.rl-ok{background:#FFF3D0;color:#8B6914}.rl-good{background:#D4F0E0;color:#1E6B3A}
+.alock{font-size:10px;color:#bbb;font-style:italic}
+.learn-panel{background:#fff;border:1.5px solid #90c4f0;border-radius:var(--radius);padding:16px;margin-bottom:12px;display:none}
+.learn-panel h3{font-family:"DM Serif Display",serif;font-size:15px;color:var(--navy);margin-bottom:3px}
+.learn-panel p{font-size:11px;color:var(--muted);margin-bottom:10px}
+.ltabs{display:flex;gap:5px;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.ltab{background:transparent;border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:"DM Sans",sans-serif}
+.ltab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lsec h4{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.llist{list-style:none;max-height:160px;overflow-y:auto}
+.litem{border-radius:5px;padding:6px 8px;margin-bottom:4px;font-size:11px;line-height:1.5;position:relative;border:1px solid}
+.litem.li-good{background:#f0fff6;border-color:#a0ddb8}
+.litem.li-ok{background:#fffbee;border-color:#f0d080}
+.litem.li-poor{background:#fff5f5;border-color:#f0a0a0}
+.litem.li-unrated{background:#f8f8f8;border-color:#ddd}
+.ll{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.lt{color:var(--navy);margin-top:1px}
+.ldel{position:absolute;top:4px;right:6px;background:none;border:none;color:#ccc;cursor:pointer;font-size:12px}
+.ldel:hover{color:var(--red)}
+.lrating{font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-bottom:2px;display:inline-block}
+.lr-good{background:#D4F0E0;color:#1E6B3A}.lr-ok{background:#FFF3D0;color:#8B6914}
+.lr-poor{background:#FFE5E5;color:#C0392B}.lr-unrated{background:#EEE;color:#888}
+.lcount{background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px}
+.lempty{color:#ccc;font-size:11px;font-style:italic;padding:4px 0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:12px;padding:26px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal.wide{width:520px}
+.modal h3{font-family:"DM Serif Display",serif;font-size:19px;color:var(--navy);margin-bottom:4px;text-align:center}
+.modal p{font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.5;text-align:center}
+.mlbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;margin-top:10px}
+.minput{width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--border);font-family:"DM Sans",sans-serif;font-size:12px;margin-bottom:0}
+.minput:focus{outline:none;border-color:var(--navy)}
+.merr{color:var(--red);font-size:10px;margin:6px 0;min-height:14px}
+.mbtns{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.prod-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.prod-row:last-child{border-bottom:none}
+.prod-chk{width:16px;height:16px;cursor:pointer;flex-shrink:0}
+.prod-name{font-size:12px;font-weight:600;color:var(--navy);flex:1}
+.prod-code{flex:1.5}
+.prod-code input{width:100%;padding:5px 8px;border-radius:5px;border:1.5px solid var(--red);font-size:11px;background:#fff5f5;font-family:"DM Sans",sans-serif}
+.prod-code input:focus{outline:none;border-color:#a01830}
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px}
+#toast.show{transform:translateY(0);opacity:1}
+.hidden{display:none!important}
+.acol{display:flex;flex-direction:column;gap:4px}
+</style>
+</head>
+<body>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="overlay hidden" id="adminModal">
+  <div class="modal">
+    <div style="font-size:28px;margin-bottom:6px;text-align:center">&#128274;</div>
+    <h3>Admin Access</h3>
+    <p>Enter the admin password to rate content, manage sales, and control the Learning Bank.</p>
+    <label class="mlbl">Password</label>
+    <input class="minput" type="password" id="adminPwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')submitAdminLogin()"/>
+    <div class="merr" id="adminErr"></div>
+    <div class="mbtns">
+      <button class="btn btn-out btn-sm" onclick="closeModal('adminModal')">Cancel</button>
+      <button class="btn btn-navy btn-sm" onclick="submitAdminLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- SALE MANAGEMENT MODAL -->
+<div class="overlay hidden" id="saleModal">
+  <div class="modal wide">
+    <div style="font-size:24px;margin-bottom:4px;text-align:center">&#127991;</div>
+    <h3>Sale Management</h3>
+    <p>Set up the sale details. Activate it manually on the start date. It auto-deactivates on the end date.</p>
+    <label class="mlbl">Sale Name</label>
+    <input class="minput" type="text" id="saleNameInput" placeholder="e.g. Diwali Sale 2025"/>
+    <label class="mlbl">Sale Description (shown to AI for copy writing)</label>
+    <input class="minput" type="text" id="saleDescInput" placeholder="e.g. Up to 40% off all plans this Diwali"/>
+    <label class="mlbl">Start Date</label>
+    <input class="minput" type="date" id="saleStartInput"/>
+    <label class="mlbl">End Date</label>
+    <input class="minput" type="date" id="saleEndInput"/>
+    <label class="mlbl" style="margin-top:12px">Select Products &amp; Enter Discount Codes</label>
+    <div id="prodRows"></div>
+    <div class="merr" id="saleErr"></div>
+    <div class="mbtns">
+      <button class="btn btn-out btn-sm" onclick="closeModal('saleModal')">Cancel</button>
+      <button class="btn btn-sm" style="background:#FFE5E5;color:#C0392B;border:none" onclick="deactivateSale()">Deactivate</button>
+      <button class="btn btn-sm" style="background:#FFF3D0;color:#8B6914;border:none" onclick="saveSale('scheduled')">Save as Scheduled</button>
+      <button class="btn btn-red btn-sm" onclick="saveSale('active')">Activate Now</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">T</div>
+    <div>
+      <div class="logo-text">Teji Mandi <span class="logo-ver">v9</span></div>
+      <div class="logo-sub">Content Generator</div>
+    </div>
+  </div>
+  <nav>
+    <button class="tab-btn active" id="tabPn" onclick="switchTab('pn')">&#128242; Push Notifications</button>
+    <button class="tab-btn" id="tabWa" onclick="switchTab('wa')">&#128172; WhatsApp</button>
+    <button class="hbtn hbtn-gold" onclick="toggleLearnPanel()">&#129504; Learning <span id="learnCount">0</span></button>
+    <button class="hbtn hbtn-sale" id="salNavBtn" onclick="openSaleModal()">&#127991; Sale <span id="saleStatusBadge"></span></button>
+    <button class="hbtn hbtn-admin" id="adminBtn" onclick="handleAdminClick()">&#128274; Admin</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- API KEY BANNER -->
+  <div class="banner banner-key">
+    <div class="banner-icon">&#128273;</div>
+    <div style="flex:1">
+      <h3>Groq API Key — free, no credit card</h3>
+      <p>Get your key at <a href="https://console.groq.com/keys" target="_blank"><strong>console.groq.com/keys</strong></a> → Sign up free → Create API Key → paste below.</p>
+      <div class="row">
+        <input class="fi" type="password" id="apiKeyInput" placeholder="gsk_..."/>
+        <button class="btn btn-gold btn-sm" onclick="saveKey()">Save Key</button>
+        <span class="api-saved" id="apiSaved">✓ Saved</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALE BANNER -->
+  <div class="banner banner-sale" id="saleBanner">
+    <div class="banner-icon">&#127991;</div>
+    <div style="flex:1">
+      <h3 id="saleBannerTitle">Active Sale</h3>
+      <p id="saleBannerDesc"></p>
+    </div>
+    <div id="saleBannerMeta" style="font-size:10px;color:var(--muted);text-align:right;flex-shrink:0"></div>
+  </div>
+
+  <!-- ADMIN PANEL BANNER -->
+  <div class="banner banner-admin hidden" id="adminPanel">
+    <div class="banner-icon">&#128737;&#65039;</div>
+    <div style="flex:1">
+      <h3>Admin Mode Active</h3>
+      <p>Rate approved content, manage the active sale, and persist the Learning Bank across sessions.</p>
+      <div class="row" style="margin-top:6px;flex-wrap:wrap">
+        <label class="btn btn-out btn-sm" style="cursor:pointer">&#128194; Load Learning Bank<input type="file" id="lbFileInput" accept=".json" style="display:none" onchange="loadLearnBank(event)"/></label>
+        <button class="btn btn-navy btn-sm" onclick="saveLearnBank()">&#128190; Save Learning Bank</button>
+        <button class="btn btn-sm" style="background:#FFE5E5;color:#C0392B;border:none" onclick="clearLearnBank()">&#128465; Clear All</button>
+        <button class="btn btn-sm" style="background:#eee;color:#666;border:none;margin-left:auto" onclick="adminLogout()">Logout Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEARNING PANEL -->
+  <div class="learn-panel" id="learnPanel">
+    <h3>&#129504; Learning Bank</h3>
+    <p>Admin-rated approved content feeds future AI generations. General, Referral and Sale learnings are kept separate and only applied to matching content.</p>
+    <div class="ltabs">
+      <button class="ltab active" onclick="switchLearnTab('general')">General <span id="lc-general" class="lcount">0</span></button>
+      <button class="ltab" onclick="switchLearnTab('referral')">Referral <span id="lc-referral" class="lcount">0</span></button>
+      <button class="ltab" onclick="switchLearnTab('sale')">Sale <span id="lc-sale" class="lcount">0</span></button>
+    </div>
+    <div id="learnTabContent"></div>
+  </div>
+
+  <!-- ── QUICK ENTRY FORM ── -->
+  <div class="qe-section">
+    <h3>✏️ Quick Entry — paste your campaign brief</h3>
+    <p>Type or paste each campaign on a new line. Use the format shown — or just fill in what you have and the tool will do its best.</p>
+
+    <div class="qe-tabs">
+      <button class="qe-tab active" id="qeTabPn" onclick="switchQeTab('pn')">📱 Push Notification rows</button>
+      <button class="qe-tab" id="qeTabWa" onclick="switchQeTab('wa')">💬 WhatsApp rows</button>
+    </div>
+
+    <div id="qe-pn-area">
+      <div class="qe-hint">
+        Format per line: <code>Segment | Campaign Type | Performance Note</code><br>
+        Example: <code>Flagship non-subscriber | New user activation | 33.5% returns last quarter</code><br>
+        Each line = one row. Leave Performance Note blank if you don't have data.
+      </div>
+      <textarea class="qe-textarea" id="qeInputPn" placeholder="Flagship non-subscriber | New user activation | 33.5% returns last quarter&#10;Multiplier expiring | Renewal | Portfolio up 18% this month&#10;Xpress non-subscriber | Trade calls | Avg 12% per trade call"></textarea>
+      <div class="qe-btns">
+        <button class="btn btn-red btn-sm" onclick="parseQuickEntry('pn')">➕ Add these rows to table</button>
+        <button class="btn btn-out btn-sm" onclick="clearQeInput('pn')">Clear</button>
+        <span class="qe-parse-msg" id="qeParseMsgPn"></span>
+        <span class="qe-parse-err" id="qeParseErrPn"></span>
+      </div>
+    </div>
+
+    <div id="qe-wa-area" class="hidden">
+      <div class="qe-hint">
+        Format per line: <code>Segment | Conversion Event | Campaign Type</code><br>
+        Example: <code>Flagship non-subscriber | Subscribe | New user activation</code><br>
+        Each line = one row.
+      </div>
+      <textarea class="qe-textarea" id="qeInputWa" placeholder="Flagship non-subscriber | Subscribe | New user activation&#10;Multiplier expiring | Renew | Renewal campaign&#10;Xpress non-subscriber | Subscribe | Trade call promo"></textarea>
+      <div class="qe-btns">
+        <button class="btn btn-red btn-sm" onclick="parseQuickEntry('wa')">➕ Add these rows to table</button>
+        <button class="btn btn-out btn-sm" onclick="clearQeInput('wa')">Clear</button>
+        <span class="qe-parse-msg" id="qeParseMsgWa"></span>
+        <span class="qe-parse-err" id="qeParseErrWa"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECONDARY EXCEL UPLOAD ── -->
+  <div class="upload-secondary">
+    <div class="upload-toggle" onclick="toggleUploadZone()">
+      <span class="upload-toggle-icon" id="uploadToggleIcon">▶</span>
+      <span>Or import from Excel file (optional)</span>
+    </div>
+    <label class="upload-zone" id="uploadZone" for="fi">
+      <input type="file" id="fi" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none"/>
+      <div style="font-size:18px;margin-bottom:4px">📂</div>
+      <h3 id="uploadLabel">Click to upload your Teji Mandi Excel file</h3>
+      <p>Both PN and WA sheets load automatically</p>
+    </label>
+  </div>
+
+  <div class="prog-wrap" id="progWrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+
+  <!-- ── PN PANEL ── -->
+  <div id="panel-pn">
+    <div class="sec-head">
+      <h2>Push Notifications</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="row-counter" id="pnCounter"><span class="row-counter-dot"></span><span id="pnCounterText">0 rows queued</span></span>
+        <span class="badge">PN</span>
+      </div>
+    </div>
+    <div class="ctrls">
+      <button class="btn btn-red" id="genAllPn" onclick="generateAll('pn')">⚡ Generate All</button>
+      <button class="btn btn-out btn-sm" onclick="retryFailed('pn')">↺ Retry Failed</button>
+      <button class="btn btn-out btn-sm" onclick="addRow('pn')">+ Add Row</button>
+      <button class="btn btn-gold btn-sm" onclick="exportExcel()">↓ Export Excel</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:20px">#</th>
+        <th style="min-width:130px">Segment</th>
+        <th style="min-width:110px">Campaign Type</th>
+        <th style="min-width:140px">Performance Input</th>
+        <th class="tonec" style="min-width:110px">Tonality</th>
+        <th class="refc" style="min-width:120px">Referral</th>
+        <th class="salec" style="min-width:90px">Sale</th>
+        <th style="min-width:75px">Status</th>
+        <th class="out" style="min-width:145px">Headline</th>
+        <th class="out" style="min-width:195px">Body Copy</th>
+        <th class="out" style="min-width:95px">CTA</th>
+        <th class="revc" style="min-width:120px">Revision Note</th>
+        <th class="perfc" style="min-width:105px">Real Performance</th>
+        <th style="min-width:95px">Actions</th>
+      </tr></thead>
+      <tbody id="body-pn"></tbody>
+    </table></div>
+    <p class="hidden" id="empty-pn" style="text-align:center;padding:30px;color:var(--muted)">Paste your campaign brief above or click "+ Add Row" to begin.</p>
+  </div>
+
+  <!-- ── WA PANEL ── -->
+  <div id="panel-wa" class="hidden">
+    <div class="sec-head">
+      <h2>WhatsApp Messages</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="row-counter" id="waCounter"><span class="row-counter-dot"></span><span id="waCounterText">0 rows queued</span></span>
+        <span class="badge">WA</span>
+      </div>
+    </div>
+    <div class="ctrls">
+      <button class="btn btn-red" id="genAllWa" onclick="generateAll('wa')">⚡ Generate All</button>
+      <button class="btn btn-out btn-sm" onclick="retryFailed('wa')">↺ Retry Failed</button>
+      <button class="btn btn-out btn-sm" onclick="addRow('wa')">+ Add Row</button>
+      <button class="btn btn-gold btn-sm" onclick="exportExcel()">↓ Export Excel</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:20px">#</th>
+        <th style="min-width:130px">Segment</th>
+        <th style="min-width:110px">Conversion Event</th>
+        <th style="min-width:110px">Campaign Type</th>
+        <th class="tonec" style="min-width:110px">Tonality</th>
+        <th class="refc" style="min-width:120px">Referral</th>
+        <th class="salec" style="min-width:90px">Sale</th>
+        <th style="min-width:75px">Status</th>
+        <th class="out" style="min-width:145px">Image Copy</th>
+        <th class="out" style="min-width:240px">Message Body</th>
+        <th class="revc" style="min-width:120px">Revision Note</th>
+        <th class="perfc" style="min-width:105px">Real Performance</th>
+        <th style="min-width:95px">Actions</th>
+      </tr></thead>
+      <tbody id="body-wa"></tbody>
+    </table></div>
+    <p class="hidden" id="empty-wa" style="text-align:center;padding:30px;color:var(--muted)">Paste your campaign brief above or click "+ Add Row" to begin.</p>
+  </div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────
+var ADMIN_PASS = 'HipaKids@321';
+var PRODUCTS = ['Flagship','Xpress','Multiplier','F&O Strategies'];
+var TONES = ['FOMO','Negative Hook','Inspirational','Urgency / Deadline-driven','Social Proof / Authority','Curiosity / Intrigue','Reassurance / Trust-building'];
+var TONE_INSTRUCTIONS = {
+  'FOMO': 'Create fear of missing out — emphasise what the user is losing by not acting. Use phrases that highlight opportunity cost.',
+  'Negative Hook': 'Start with a challenge, pain point or failure state the user might relate to, then pivot to the solution.',
+  'Inspirational': 'Uplift and motivate. Focus on what the user can achieve, their potential, and a brighter financial future.',
+  'Urgency / Deadline-driven': 'Make time the enemy. Emphasise deadlines, expiry, limited slots. Drive immediate action.',
+  'Social Proof / Authority': 'Lead with credibility — SEBI registration, analyst track record, returns data, number of users. Build trust through evidence.',
+  'Curiosity / Intrigue': 'Open a loop the user must close. Use a surprising stat, a question, or a reveal that makes them want to know more.',
+  'Reassurance / Trust-building': 'Reduce anxiety and doubt. Speak to hesitation, simplify the decision, and make the user feel safe acting.'
+};
+var BRAND = 'Brand: Teji Mandi — SEBI-registered research-based investing & trading platform in India.\nSolutions: (1) Model stock portfolios, (2) Trade calls with entry/exit/stop-loss, (3) Tested F&O strategies.\nAnalysts monitor markets continuously and rebalance portfolios at zero cost.';
+var PN_BASE = 'EXAMPLE 1\nSegment: New User | Campaign: Flagship non-subscriber\nHeadline: +33.55% Returns. Dont Miss Out\nBody: Get expert-curated stocks, weekly updates & timely rebalances, built for high-growth opportunities.\nCTA: Explore Flagship\n\nEXAMPLE 2\nSegment: Sale | Campaign: Xpress non-subscriber\nHeadline: Dont just watch the market. Act on it\nBody: Get timely trade ideas backed by research and clear strategy.\nCTA: Explore Xpress\n\nEXAMPLE 3\nSegment: Renewal | Campaign: Multiplier expiring\nHeadline: Multiplier Access Expiring Shortly\nBody: Continue tracking emerging opportunities with uninterrupted research access.\nCTA: Renew Access\n\nEXAMPLE 4\nSegment: New to trading\nHeadline: Still Thinking About Investing?\nBody: Start with structured insights and a clear approach - no confusion, just direction.\nCTA: Explore Now\n\nEXAMPLE 5\nSegment: Subscribed but not invested\nHeadline: Access Unlocked. Investment Pending\nBody: Multiplier opportunities are live. Review the portfolio and decide your next move.\nCTA: Checkout Multiplier Now!';
+var WA_STYLE = 'WhatsApp messages for Teji Mandi:\n- Open with a conversational hook or bold claim from provided data\n- Build with performance context or missed opportunity angle\n- Warm but direct - like a smart friend giving a tip\n- End with a specific CTA on its own line\n- Use natural line breaks after hook, after main line, before CTA\n- Image Copy: max 8 words, punchy, readable as overlay text on a visual';
+var RATING_LABELS = {0:'',1:'Poor',2:'Poor',3:'Okay',4:'Good',5:'Good'};
+var RATING_CLASSES = {0:'rl-none',1:'rl-poor',2:'rl-poor',3:'rl-ok',4:'rl-good',5:'rl-good'};
+
+// ── HEADLINE CRAFT RULES (Option A — richer prompt) ───────────
+var PN_HEADLINE_RULES = [
+  'Headline craft rules (follow strictly):',
+  '1. Lead with the most SPECIFIC detail from inputs first — a number, a product name, a concrete outcome (e.g. "+33% returns", "Multiplier expiring", "3 trade calls missed").',
+  '2. The first 2-3 words carry the entire weight. Make them earn their place.',
+  '3. NEVER open with: "Don\'t miss", "Are you", "Have you", "Did you know", "Unlock", "Discover" — these are tired openers.',
+  '4. Apply the tone instruction in the FIRST phrase, not the last.',
+  '5. If performance data is provided, lead with the number. Numbers beat adjectives every time.',
+  '6. Use a short, punchy two-part structure where possible: [Hook]. [Outcome.] — e.g. "Access Unlocked. Portfolio Waiting." or "+33% Returns. Your Move."',
+  '7. Prefer active voice. Avoid passive constructions.',
+  '8. Max 55 characters. Count carefully.',
+  '9. 1-2 emojis are allowed but only if they add meaning — not decoration.',
+].join('\n');
+
+// ── STATE ─────────────────────────────────────────────────────
+var pnRows = [], waRows = [], apiKey = '', isAdmin = false;
+var currentLearnTab = 'general';
+var learnBank = {general:{pn:[],wa:[]}, referral:{pn:[],wa:[]}, sale:{pn:[],wa:[]}};
+var activeSale = null;
+var currentQeTab = 'pn';
+
+// ── ADMIN ─────────────────────────────────────────────────────
+function handleAdminClick(){
+  if(isAdmin) adminLogout();
+  else { document.getElementById('adminModal').classList.remove('hidden'); document.getElementById('adminPwInput').focus(); }
+}
+function submitAdminLogin(){
+  var pw = document.getElementById('adminPwInput').value;
+  if(pw === ADMIN_PASS){
+    isAdmin = true;
+    closeModal('adminModal');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminBtn').classList.add('active');
+    document.getElementById('adminBtn').textContent = '🛡️ Admin Mode';
+    document.getElementById('adminPanel').classList.remove('hidden');
+    refreshAllStarCells('pn'); refreshAllStarCells('wa');
+    toast('Admin mode activated');
+  } else {
+    document.getElementById('adminErr').textContent = 'Incorrect password. Try again.';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+function adminLogout(){
+  isAdmin = false;
+  document.getElementById('adminBtn').classList.remove('active');
+  document.getElementById('adminBtn').innerHTML = '🔐 Admin';
+  document.getElementById('adminPanel').classList.add('hidden');
+  refreshAllStarCells('pn'); refreshAllStarCells('wa');
+  toast('Logged out of admin mode');
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); document.getElementById('adminErr').textContent=''; }
+
+// ── API KEY ───────────────────────────────────────────────────
+function saveKey(){
+  apiKey = document.getElementById('apiKeyInput').value.trim();
+  if(apiKey.indexOf('gsk_') !== 0){ toast('Please enter a valid Groq key (starts with gsk_)', true); return; }
+  document.getElementById('apiSaved').style.display = 'inline';
+  toast('Groq key saved');
+}
+
+// ── TAB ───────────────────────────────────────────────────────
+function switchTab(tab){
+  document.getElementById('panel-pn').classList.toggle('hidden', tab !== 'pn');
+  document.getElementById('panel-wa').classList.toggle('hidden', tab !== 'wa');
+  document.getElementById('tabPn').classList.toggle('active', tab === 'pn');
+  document.getElementById('tabWa').classList.toggle('active', tab === 'wa');
+}
+
+// ── QUICK ENTRY TAB ───────────────────────────────────────────
+function switchQeTab(tab){
+  currentQeTab = tab;
+  document.getElementById('qe-pn-area').classList.toggle('hidden', tab !== 'pn');
+  document.getElementById('qe-wa-area').classList.toggle('hidden', tab !== 'wa');
+  document.getElementById('qeTabPn').classList.toggle('active', tab === 'pn');
+  document.getElementById('qeTabWa').classList.toggle('active', tab === 'wa');
+}
+
+function clearQeInput(type){
+  document.getElementById(type === 'pn' ? 'qeInputPn' : 'qeInputWa').value = '';
+  showQeMsg(type, '', '');
+}
+
+function showQeMsg(type, ok, err){
+  var msgEl = document.getElementById(type === 'pn' ? 'qeParseMsgPn' : 'qeParseMsgWa');
+  var errEl = document.getElementById(type === 'pn' ? 'qeParseErrPn' : 'qeParseErrWa');
+  msgEl.textContent = ok; msgEl.style.display = ok ? 'inline' : 'none';
+  errEl.textContent = err; errEl.style.display = err ? 'inline' : 'none';
+}
+
+function parseQuickEntry(type){
+  var rawEl = document.getElementById(type === 'pn' ? 'qeInputPn' : 'qeInputWa');
+  var raw = rawEl.value.trim();
+  if(!raw){ showQeMsg(type, '', 'Nothing to parse — type your campaign details first.'); return; }
+  var lines = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
+  if(lines.length === 0){ showQeMsg(type, '', 'No valid lines found.'); return; }
+  var added = 0;
+  lines.forEach(function(line){
+    var parts = line.split('|').map(function(p){ return p.trim(); });
+    if(type === 'pn'){
+      var row = newRow('pn', {
+        segment: parts[0] || '',
+        campaign: parts[1] || '',
+        performance: parts[2] || ''
+      });
+      pnRows.push(row);
+    } else {
+      var row = newRow('wa', {
+        segment: parts[0] || '',
+        conversion: parts[1] || '',
+        campaign: parts[2] || ''
+      });
+      waRows.push(row);
+    }
+    added++;
+  });
+  renderTable(type);
+  updateCounter(type);
+  showQeMsg(type, '✓ ' + added + ' row' + (added > 1 ? 's' : '') + ' added to the table below.', '');
+  // Switch to the right tab to show result
+  switchTab(type);
+}
+
+// ── UPLOAD ZONE TOGGLE ────────────────────────────────────────
+function toggleUploadZone(){
+  var zone = document.getElementById('uploadZone');
+  var icon = document.getElementById('uploadToggleIcon');
+  var isOpen = zone.style.display === 'block';
+  zone.style.display = isOpen ? 'none' : 'block';
+  icon.classList.toggle('open', !isOpen);
+}
+
+// ── ROW COUNTER ───────────────────────────────────────────────
+function updateCounter(type){
+  var rows = type === 'pn' ? pnRows : waRows;
+  var el = document.getElementById(type === 'pn' ? 'pnCounterText' : 'waCounterText');
+  var pending = rows.filter(function(r){ return r.status === 'pending' || r.status === 'error'; }).length;
+  var total = rows.length;
+  if(total === 0){
+    el.textContent = '0 rows queued';
+  } else {
+    var done = rows.filter(function(r){ return r.status === 'done' || r.status === 'approved'; }).length;
+    el.textContent = total + ' rows total — ' + done + ' done, ' + pending + ' pending';
+  }
+}
+
+// ── SALE MANAGEMENT ───────────────────────────────────────────
+function openSaleModal(){
+  if(!isAdmin){ toast('Admin login required to manage sales.', true); return; }
+  document.getElementById('saleNameInput').value = activeSale ? activeSale.name : '';
+  document.getElementById('saleDescInput').value = activeSale ? activeSale.desc : '';
+  document.getElementById('saleStartInput').value = activeSale ? activeSale.startDate : '';
+  document.getElementById('saleEndInput').value = activeSale ? activeSale.endDate : '';
+  renderProdRows();
+  document.getElementById('saleModal').classList.remove('hidden');
+}
+function renderProdRows(){
+  var container = document.getElementById('prodRows');
+  container.innerHTML = '';
+  PRODUCTS.forEach(function(prod){
+    var existing = activeSale ? activeSale.products.find(function(p){return p.name===prod;}) : null;
+    var checked = !!existing;
+    var code = existing ? existing.code : '';
+    var row = document.createElement('div');
+    row.className = 'prod-row';
+    var chk = document.createElement('input');
+    chk.type = 'checkbox'; chk.className = 'prod-chk'; chk.id = 'chk-' + prod; chk.checked = checked;
+    chk.addEventListener('change', (function(p){ return function(){ toggleProdCode(p); }; })(prod));
+    var lbl = document.createElement('label');
+    lbl.className = 'prod-name'; lbl.htmlFor = 'chk-' + prod; lbl.textContent = prod;
+    var codeWrap = document.createElement('div');
+    codeWrap.className = 'prod-code'; codeWrap.id = 'code-wrap-' + prod;
+    codeWrap.style.opacity = checked ? '1' : '.3';
+    codeWrap.style.pointerEvents = checked ? 'auto' : 'none';
+    var codeInp = document.createElement('input');
+    codeInp.type = 'text'; codeInp.placeholder = 'Discount code (required)';
+    codeInp.value = code; codeInp.id = 'code-' + prod;
+    codeWrap.appendChild(codeInp);
+    row.appendChild(chk); row.appendChild(lbl); row.appendChild(codeWrap);
+    container.appendChild(row);
+  });
+}
+function toggleProdCode(prod){
+  var checked = document.getElementById('chk-'+prod).checked;
+  var wrap = document.getElementById('code-wrap-'+prod);
+  wrap.style.opacity = checked ? '1' : '.3';
+  wrap.style.pointerEvents = checked ? 'auto' : 'none';
+  if(!checked) document.getElementById('code-'+prod).value = '';
+}
+function saveSale(status){
+  var name = document.getElementById('saleNameInput').value.trim();
+  var desc = document.getElementById('saleDescInput').value.trim();
+  var start = document.getElementById('saleStartInput').value;
+  var end = document.getElementById('saleEndInput').value;
+  if(!name || !desc || !start || !end){ document.getElementById('saleErr').textContent = 'Please fill in all sale details.'; return; }
+  if(end < start){ document.getElementById('saleErr').textContent = 'End date must be after start date.'; return; }
+  var products = []; var missing = [];
+  PRODUCTS.forEach(function(prod){
+    if(document.getElementById('chk-'+prod).checked){
+      var code = document.getElementById('code-'+prod).value.trim();
+      if(!code) missing.push(prod);
+      else products.push({name:prod, code:code});
+    }
+  });
+  if(missing.length){ document.getElementById('saleErr').textContent = 'Missing code for: ' + missing.join(', '); return; }
+  if(products.length === 0){ document.getElementById('saleErr').textContent = 'Select at least one product.'; return; }
+  activeSale = {name:name, desc:desc, startDate:start, endDate:end, status:status, products:products};
+  checkSaleAutoExpiry();
+  closeModal('saleModal');
+  document.getElementById('saleErr').textContent = '';
+  updateSaleUI();
+  renderTable('pn'); renderTable('wa');
+  toast('Sale ' + (status==='active'?'activated':'scheduled') + ': ' + name);
+}
+function deactivateSale(){
+  activeSale = null;
+  closeModal('saleModal');
+  updateSaleUI();
+  renderTable('pn'); renderTable('wa');
+  toast('Sale deactivated');
+}
+function checkSaleAutoExpiry(){
+  if(!activeSale) return;
+  var today = new Date().toISOString().slice(0,10);
+  if(activeSale.status === 'active' && today > activeSale.endDate){
+    activeSale.status = 'ended';
+    toast('Sale "' + activeSale.name + '" has ended.');
+  }
+}
+function updateSaleUI(){
+  checkSaleAutoExpiry();
+  var badge = document.getElementById('saleStatusBadge');
+  var banner = document.getElementById('saleBanner');
+  if(!activeSale || activeSale.status === 'ended'){ badge.textContent = ''; banner.style.display = 'none'; return; }
+  if(activeSale.status === 'scheduled'){ badge.textContent = '(Scheduled)'; banner.style.display = 'none'; return; }
+  badge.textContent = 'LIVE';
+  banner.style.display = 'flex';
+  document.getElementById('saleBannerTitle').textContent = '🏷️ ' + activeSale.name + ' is LIVE';
+  document.getElementById('saleBannerDesc').textContent = activeSale.desc + ' | Products: ' + activeSale.products.map(function(p){return p.name+' ('+p.code+')';}).join(', ');
+  document.getElementById('saleBannerMeta').textContent = 'Valid: ' + activeSale.startDate + ' to ' + activeSale.endDate;
+}
+function getSaleCodeForSegment(segment){
+  if(!activeSale || activeSale.status !== 'active') return null;
+  var seg = segment.toLowerCase();
+  var matched = null;
+  activeSale.products.forEach(function(p){ if(seg.indexOf(p.name.toLowerCase()) >= 0) matched = p; });
+  return matched;
+}
+
+// ── LEARNING PANEL ────────────────────────────────────────────
+function toggleLearnPanel(){
+  var p = document.getElementById('learnPanel');
+  p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+  if(p.style.display === 'block') renderLearnTab(currentLearnTab);
+}
+function switchLearnTab(tab){
+  currentLearnTab = tab;
+  document.querySelectorAll('.ltab').forEach(function(b,i){ b.classList.toggle('active', ['general','referral','sale'][i] === tab); });
+  renderLearnTab(tab);
+}
+function renderLearnTab(tab){
+  var bank = learnBank[tab];
+  var content = document.getElementById('learnTabContent');
+  content.innerHTML = '<div class="lgrid">' +
+    '<div class="lsec"><h4>Push Notifications <span id="lc-pn-'+tab+'" class="lcount">'+bank.pn.length+'</span></h4><ul class="llist" id="ll-pn-'+tab+'"></ul></div>' +
+    '<div class="lsec"><h4>WhatsApp Messages <span id="lc-wa-'+tab+'" class="lcount">'+bank.wa.length+'</span></h4><ul class="llist" id="ll-wa-'+tab+'"></ul></div>' +
+    '</div>';
+  renderLearnList(tab, 'pn');
+  renderLearnList(tab, 'wa');
+}
+function renderLearnList(tab, type){
+  var bank = learnBank[tab][type];
+  var list = document.getElementById('ll-'+type+'-'+tab);
+  if(!list) return;
+  list.innerHTML = '';
+  if(bank.length === 0){ var empty = document.createElement('li'); empty.className = 'lempty'; empty.textContent = 'No entries yet.'; list.appendChild(empty); return; }
+  bank.forEach(function(item, i){
+    var tier = item.tier || 'unrated';
+    var li = document.createElement('li'); li.className = 'litem li-' + tier;
+    if(isAdmin){ var del = document.createElement('button'); del.className = 'ldel'; del.textContent = 'x'; del.addEventListener('click', (function(t,tp,idx){ return function(){ removeLearn(t,tp,idx); }; })(tab,type,i)); li.appendChild(del); }
+    var rating = document.createElement('span'); rating.className = 'lrating lr-' + tier;
+    rating.textContent = (item.rating ? ('★'.repeat(item.rating) + '☆'.repeat(5-item.rating)) : 'No rating') + ' ' + ucfirst(tier);
+    li.appendChild(rating);
+    var fields = type === 'pn' ? [['Headline', item.headline],['Body', item.body],['CTA', item.cta]] : [['Image Copy', item.imageCopy],['Message', item.message]];
+    fields.forEach(function(pair){ var lbl = document.createElement('div'); lbl.className = 'll'; lbl.textContent = pair[0]; var val = document.createElement('div'); val.className = 'lt'; val.textContent = pair[1]||''; li.appendChild(lbl); li.appendChild(val); });
+    var meta = document.createElement('div'); meta.style.cssText = 'font-size:9px;color:#bbb;margin-top:2px'; meta.textContent = (item.campaign||'') + (item.tone?' | '+item.tone:''); li.appendChild(meta);
+    list.appendChild(li);
+  });
+}
+function updateLearnCounts(){
+  var total = learnBank.general.pn.length + learnBank.general.wa.length + learnBank.referral.pn.length + learnBank.referral.wa.length + learnBank.sale.pn.length + learnBank.sale.wa.length;
+  document.getElementById('learnCount').textContent = total;
+  ['general','referral','sale'].forEach(function(tab){ var el = document.getElementById('lc-'+tab); if(el) el.textContent = learnBank[tab].pn.length + learnBank[tab].wa.length; });
+}
+function getRatingTier(r){ return !r||r===0?'unrated':r>=4?'good':r===3?'ok':'poor'; }
+function ucfirst(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+function approveRow(type, i){
+  var rows = type==='pn' ? pnRows : waRows;
+  var row = rows[i];
+  if(type==='pn' && !row.headline){ toast('Generate content first before approving.', true); return; }
+  if(type==='wa' && !row.imageCopy){ toast('Generate content first before approving.', true); return; }
+  if(row.status === 'approved'){ toast('Already approved.', true); return; }
+  var bankKey = row.isSale ? 'sale' : row.referral==='Referral' ? 'referral' : 'general';
+  var entry = {campaign:row.campaign, segment:row.segment, tone:row.tone||'', rating:0, tier:'unrated'};
+  if(type==='pn'){ entry.headline=row.headline; entry.body=row.body; entry.cta=row.cta; }
+  else { entry.imageCopy=row.imageCopy; entry.message=row.message; }
+  learnBank[bankKey][type].push(entry);
+  row.status = 'approved'; row.learnBank = bankKey; row.learnIdx = learnBank[bankKey][type].length - 1;
+  document.getElementById('st-'+type+'-'+i).innerHTML = pill('approved');
+  refreshStarCell(type, i);
+  updateLearnCounts();
+  updateCounter(type);
+  if(document.getElementById('learnPanel').style.display==='block') renderLearnTab(currentLearnTab);
+  toast('Approved → added to ' + ucfirst(bankKey) + ' Learning Bank');
+}
+function setRating(type, bankKey, learnIdx, rating){
+  if(!isAdmin){ toast('Admin login required to rate content.', true); return; }
+  if(!learnBank[bankKey][type][learnIdx]) return;
+  learnBank[bankKey][type][learnIdx].rating = rating;
+  learnBank[bankKey][type][learnIdx].tier = getRatingTier(rating);
+  if(document.getElementById('learnPanel').style.display==='block') renderLearnTab(currentLearnTab);
+  toast('Rating saved');
+}
+function removeLearn(tab, type, i){
+  if(!isAdmin){ toast('Admin login required.', true); return; }
+  learnBank[tab][type].splice(i, 1);
+  updateLearnCounts();
+  renderLearnTab(tab);
+}
+function clearLearnBank(){
+  if(!isAdmin){ toast('Admin login required.', true); return; }
+  if(!confirm('Clear the entire Learning Bank?')) return;
+  learnBank = {general:{pn:[],wa:[]}, referral:{pn:[],wa:[]}, sale:{pn:[],wa:[]}};
+  updateLearnCounts();
+  renderLearnTab(currentLearnTab);
+  toast('Learning Bank cleared.');
+}
+function saveLearnBank(){
+  if(!isAdmin){ toast('Admin login required.', true); return; }
+  var data = JSON.stringify({version:3, savedAt:new Date().toISOString(), learnBank:learnBank, activeSale:activeSale}, null, 2);
+  var blob = new Blob([data], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'TejiMandi_LearningBank_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('Learning Bank saved');
+}
+function loadLearnBank(e){
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      var parsed = JSON.parse(ev.target.result);
+      if(parsed.learnBank){
+        learnBank = parsed.learnBank;
+        if(parsed.activeSale) activeSale = parsed.activeSale;
+        updateLearnCounts(); updateSaleUI();
+        renderTable('pn'); renderTable('wa');
+        if(document.getElementById('learnPanel').style.display==='block') renderLearnTab(currentLearnTab);
+        toast('Learning Bank loaded successfully');
+      } else { toast('Invalid file format.', true); }
+    } catch(err){ toast('Could not read file.', true); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ── LEARN CONTEXT FOR PROMPTS ─────────────────────────────────
+function getLearnContext(bankKey, type){
+  var bank = learnBank[bankKey][type];
+  var good=[], ok=[], poor=[];
+  bank.forEach(function(item){ if(item.tier==='good') good.push(item); else if(item.tier==='ok') ok.push(item); else if(item.tier==='poor') poor.push(item); });
+  var out = '';
+  if(good.length){ out += '\n\nHIGH PERFORMING APPROVED EXAMPLES (match this style above all else):\n'; good.forEach(function(item,i){ if(type==='pn') out += 'GOOD #'+(i+1)+' | '+item.campaign+(item.tone?' | Tone:'+item.tone:'')+'\nHeadline: '+item.headline+'\nBody: '+item.body+'\nCTA: '+item.cta+'\n'; else out += 'GOOD #'+(i+1)+' | '+item.campaign+'\nImage Copy: '+item.imageCopy+'\nMessage: '+item.message+'\n'; }); }
+  if(ok.length){ out += '\nDECENT EXAMPLES (acceptable reference):\n'; ok.forEach(function(item,i){ if(type==='pn') out += 'OKAY #'+(i+1)+' | Headline: '+item.headline+' | Body: '+item.body+'\n'; else out += 'OKAY #'+(i+1)+' | Image Copy: '+item.imageCopy+'\n'; }); }
+  if(poor.length){ out += '\nPOOR PERFORMING EXAMPLES (DO NOT replicate these patterns):\n'; poor.forEach(function(item,i){ if(type==='pn') out += 'AVOID #'+(i+1)+' | Headline: '+item.headline+' | Body: '+item.body+'\n'; else out += 'AVOID #'+(i+1)+' | Image Copy: '+item.imageCopy+'\n'; }); }
+  return out;
+}
+
+// ── FILE LOAD ─────────────────────────────────────────────────
+function loadFile(e){
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var wb = XLSX.read(ev.target.result, {type:'array'});
+    var pnSheet = wb.Sheets['Push Notifications'];
+    if(pnSheet){
+      var data = XLSX.utils.sheet_to_json(pnSheet, {header:1, defval:''});
+      pnRows = [];
+      for(var r=3;r<data.length;r++){ var row=data[r]; if(!row[0]&&!row[1]) continue; pnRows.push(newRow('pn', {segment:row[0]||'', campaign:row[1]||'', performance:row[2]||'', notes:row[7]||''})); }
+    }
+    var waSheet = wb.Sheets['WhatsApp'];
+    if(waSheet){
+      var data2 = XLSX.utils.sheet_to_json(waSheet, {header:1, defval:''});
+      waRows = [];
+      for(var r2=3;r2<data2.length;r2++){ var row2=data2[r2]; if(!row2[0]&&!row2[1]) continue; waRows.push(newRow('wa', {segment:row2[0]||'', conversion:row2[1]||'', campaign:row2[2]||'', notes:row2[6]||''})); }
+    }
+    document.getElementById('uploadLabel').textContent = '✓ Loaded: ' + file.name;
+    renderTable('pn'); renderTable('wa');
+    updateCounter('pn'); updateCounter('wa');
+    toast('Loaded — ' + pnRows.length + ' PN rows, ' + waRows.length + ' WA rows');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function newRow(type, overrides){
+  var base = {status:'pending', tone:'FOMO', referral:'Non-Referral', refCode:'', isSale:false, rating:0, learnIdx:-1, learnBank:'general', notes:'', headline:'', body:'', cta:'', imageCopy:'', message:'', segment:'', campaign:'', performance:'', conversion:''};
+  Object.keys(overrides).forEach(function(k){ base[k] = overrides[k]; });
+  return base;
+}
+
+function addRow(type){
+  if(type==='pn') pnRows.push(newRow('pn', {}));
+  else waRows.push(newRow('wa', {}));
+  renderTable(type);
+  updateCounter(type);
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderTable(type){
+  var rows = type==='pn' ? pnRows : waRows;
+  var tbody = document.getElementById('body-'+type);
+  var empty = document.getElementById('empty-'+type);
+  tbody.innerHTML = '';
+  empty.classList.toggle('hidden', rows.length > 0);
+  for(var i=0;i<rows.length;i++) tbody.appendChild(makeRow(type, rows[i], i));
+  updateCounter(type);
+}
+
+function refreshStarCell(type, i){
+  var td = document.getElementById('perf-'+type+'-'+i);
+  if(!td) return;
+  var rows = type==='pn' ? pnRows : waRows;
+  td.innerHTML = '';
+  td.appendChild(makeStarWidget(type, i, rows[i]));
+}
+function refreshAllStarCells(type){
+  var rows = type==='pn' ? pnRows : waRows;
+  for(var i=0;i<rows.length;i++) refreshStarCell(type, i);
+}
+
+function pill(s){ var labels = {pending:'Pending',running:'Generating...',done:'Done',approved:'Approved',error:'Error'}; return '<span class="pill p-'+s+'"><span class="pdot"></span>'+(labels[s]||s)+'</span>'; }
+
+function toneSelect(type, i, val){
+  var sel = document.createElement('select'); sel.className = 'sfield';
+  TONES.forEach(function(t){ var o = document.createElement('option'); o.value=t; o.textContent=t; if(t===val) o.selected=true; sel.appendChild(o); });
+  sel.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].tone=this.value; });
+  return sel;
+}
+
+function referralSelect(type, i, row){
+  var wrap = document.createElement('div');
+  var sel = document.createElement('select'); sel.className = 'sfield';
+  ['Non-Referral','Referral'].forEach(function(v){ var o = document.createElement('option'); o.value=v; o.textContent=v; if(v===row.referral) o.selected=true; sel.appendChild(o); });
+  var codeWrap = document.createElement('div'); codeWrap.className = 'ref-code-wrap'; codeWrap.style.display = row.referral==='Referral'?'block':'none';
+  var codeLbl = document.createElement('div'); codeLbl.className = 'ref-req'; codeLbl.textContent = '* Referral Code (required)';
+  var codeInp = document.createElement('input'); codeInp.className = 'ref-code-input'; codeInp.type='text'; codeInp.placeholder='e.g. FRIEND20'; codeInp.value=row.refCode||'';
+  codeInp.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].refCode=this.value; });
+  codeWrap.appendChild(codeLbl); codeWrap.appendChild(codeInp);
+  sel.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].referral=this.value; codeWrap.style.display=this.value==='Referral'?'block':'none'; });
+  wrap.appendChild(sel); wrap.appendChild(codeWrap);
+  return wrap;
+}
+
+function saleCell(type, i, row){
+  var wrap = document.createElement('div');
+  if(!activeSale || activeSale.status !== 'active'){ var msg = document.createElement('span'); msg.className='alock'; msg.textContent='No active sale'; wrap.appendChild(msg); return wrap; }
+  var matched = getSaleCodeForSegment(row.segment);
+  if(matched){ var flag = document.createElement('div'); flag.className='sale-flag'; flag.textContent='🏷️ '+matched.name; wrap.appendChild(flag); }
+  var toggleWrap = document.createElement('div'); toggleWrap.className='sale-toggle-wrap';
+  var chk = document.createElement('input'); chk.type='checkbox'; chk.checked=row.isSale; chk.style.cursor='pointer';
+  chk.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].isSale=this.checked; });
+  var lbl = document.createElement('label'); lbl.textContent=' Include sale'; lbl.style.cursor='pointer';
+  toggleWrap.appendChild(chk); toggleWrap.appendChild(lbl);
+  wrap.appendChild(toggleWrap);
+  return wrap;
+}
+
+function makeOutCell(type, i, field, label, value){
+  var wrap = document.createElement('div'); wrap.className='out-wrap';
+  var lbl = document.createElement('div'); lbl.className='out-lbl'; lbl.innerHTML=label+'<span>✎ editable</span>';
+  var ta = document.createElement('textarea'); ta.className='out-edit'; ta.rows=2; ta.value=value||''; ta.placeholder='Generate first...';
+  ta.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; if(rows[i]) rows[i][field]=this.value; });
+  wrap.appendChild(lbl); wrap.appendChild(ta); return wrap;
+}
+
+function makeInputTd(rowCount, value, onChange){
+  var td = document.createElement('td');
+  var ta = document.createElement('textarea'); ta.className='ifield'; ta.rows=rowCount; ta.value=value||'';
+  ta.addEventListener('change', function(){ onChange(this.value); });
+  td.appendChild(ta); return td;
+}
+
+function makeStarWidget(type, i, row){
+  var wrap = document.createElement('div'); wrap.className='sw';
+  var isApproved = row.status==='approved';
+  if(!isApproved){ var lock = document.createElement('span'); lock.className='alock'; lock.textContent='Approve first'; wrap.appendChild(lock); return wrap; }
+  var starsDiv = document.createElement('div'); starsDiv.className='stars';
+  var ratingLbl = document.createElement('span');
+  function getRows(){ return type==='pn'?pnRows:waRows; }
+  function getSaved(){ return getRows()[i].rating||0; }
+  function paintStars(highlight){ var show=highlight||getSaved(); var spans=starsDiv.querySelectorAll('.star'); for(var s=0;s<spans.length;s++) spans[s].classList.toggle('active', s<show); }
+  function buildStars(){
+    starsDiv.innerHTML='';
+    for(var s=1;s<=5;s++){
+      var star=document.createElement('span'); star.className='star'+(isAdmin?' clickable':''); star.textContent='★';
+      if(isAdmin){
+        (function(val){
+          star.addEventListener('mouseover', function(){ paintStars(val); });
+          star.addEventListener('mouseout', function(){ paintStars(0); });
+          star.addEventListener('click', function(e){
+            e.stopPropagation();
+            var r=getRows()[i]; r.rating=val;
+            paintStars(0);
+            ratingLbl.className='rlbl '+(RATING_CLASSES[val]||'rl-none');
+            ratingLbl.textContent=RATING_LABELS[val]||'Not rated';
+            if(r.learnIdx>=0) setRating(type, r.learnBank, r.learnIdx, val);
+          });
+        })(s);
+      }
+      starsDiv.appendChild(star);
+    }
+    paintStars(0);
+  }
+  buildStars();
+  var cur0=getSaved();
+  ratingLbl.className='rlbl '+(cur0?RATING_CLASSES[cur0]:'rl-none');
+  ratingLbl.textContent=cur0?RATING_LABELS[cur0]:(isAdmin?'Not rated':'Admin only');
+  wrap.appendChild(starsDiv); wrap.appendChild(ratingLbl); return wrap;
+}
+
+function makeRow(type, row, i){
+  var tr = document.createElement('tr');
+  var td0 = document.createElement('td'); td0.textContent=i+1; tr.appendChild(td0);
+  if(type==='pn'){
+    tr.appendChild(makeInputTd(3, row.segment, function(v){pnRows[i].segment=v;}));
+    tr.appendChild(makeInputTd(2, row.campaign, function(v){pnRows[i].campaign=v;}));
+    tr.appendChild(makeInputTd(3, row.performance, function(v){pnRows[i].performance=v;}));
+  } else {
+    tr.appendChild(makeInputTd(3, row.segment, function(v){waRows[i].segment=v;}));
+    tr.appendChild(makeInputTd(2, row.conversion, function(v){waRows[i].conversion=v;}));
+    tr.appendChild(makeInputTd(2, row.campaign, function(v){waRows[i].campaign=v;}));
+  }
+  var tdTone=document.createElement('td'); tdTone.className='tonec'; tdTone.appendChild(toneSelect(type, i, row.tone||'FOMO')); tr.appendChild(tdTone);
+  var tdRef=document.createElement('td'); tdRef.className='refc'; tdRef.appendChild(referralSelect(type, i, row)); tr.appendChild(tdRef);
+  var tdSale=document.createElement('td'); tdSale.className='salec'; tdSale.appendChild(saleCell(type, i, row)); tr.appendChild(tdSale);
+  var tdSt=document.createElement('td'); tdSt.id='st-'+type+'-'+i; tdSt.innerHTML=pill(row.status); tr.appendChild(tdSt);
+  if(type==='pn'){
+    var tdHl=document.createElement('td'); tdHl.className='out'; tdHl.id='hl-'+i; tdHl.appendChild(makeOutCell('pn',i,'headline','Headline',row.headline)); tr.appendChild(tdHl);
+    var tdBd=document.createElement('td'); tdBd.className='out'; tdBd.id='bd-'+i; tdBd.appendChild(makeOutCell('pn',i,'body','Body',row.body)); tr.appendChild(tdBd);
+    var tdCt=document.createElement('td'); tdCt.className='out'; tdCt.id='ct-'+i; tdCt.appendChild(makeOutCell('pn',i,'cta','CTA',row.cta)); tr.appendChild(tdCt);
+  } else {
+    var tdIc=document.createElement('td'); tdIc.className='out'; tdIc.id='ic-'+i; tdIc.appendChild(makeOutCell('wa',i,'imageCopy','Image Copy',row.imageCopy)); tr.appendChild(tdIc);
+    var tdMsg=document.createElement('td'); tdMsg.className='out'; tdMsg.id='msg-'+i; tdMsg.appendChild(makeOutCell('wa',i,'message','Message',row.message)); tr.appendChild(tdMsg);
+  }
+  var tdRev=document.createElement('td'); tdRev.className='revc';
+  var revTa=document.createElement('textarea'); revTa.className='rfield'; revTa.rows=3; revTa.placeholder='e.g. Make more urgent...'; revTa.value=row.notes||'';
+  revTa.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].notes=this.value; });
+  tdRev.appendChild(revTa); tr.appendChild(tdRev);
+  var tdPerf=document.createElement('td'); tdPerf.className='perfc'; tdPerf.id='perf-'+type+'-'+i; tdPerf.appendChild(makeStarWidget(type, i, row)); tr.appendChild(tdPerf);
+  var tdAct=document.createElement('td');
+  var actDiv=document.createElement('div'); actDiv.className='acol';
+  var btnGen=document.createElement('button'); btnGen.className='btn btn-red btn-sm'; btnGen.textContent='Gen';
+  btnGen.onclick=(function(t,idx){return function(){generateRow(t,idx);};})(type,i);
+  var btnApp=document.createElement('button'); btnApp.className='btn btn-green btn-sm'; btnApp.textContent='Approve';
+  btnApp.onclick=(function(t,idx){return function(){approveRow(t,idx);};})(type,i);
+  actDiv.appendChild(btnGen); actDiv.appendChild(btnApp); tdAct.appendChild(actDiv); tr.appendChild(tdAct);
+  return tr;
+}
+
+function refreshOutCell(cellId, type, i, field, label, value){
+  var td=document.getElementById(cellId); if(!td) return; td.innerHTML=''; td.appendChild(makeOutCell(type, i, field, label, value));
+}
+
+// ── GENERATE ─────────────────────────────────────────────────
+async function generateRow(type, i){
+  if(!apiKey){ toast('Please enter and save your Groq API key first.', true); return; }
+  var rows = type==='pn'?pnRows:waRows;
+  var row = rows[i];
+  if(row.referral==='Referral' && !row.refCode.trim()){ toast('Row '+(i+1)+': Referral code is required before generating.', true); return; }
+  row.status='running';
+  document.getElementById('st-'+type+'-'+i).innerHTML=pill('running');
+  try{
+    var content = type==='pn' ? await callPn(row) : await callWa(row);
+    if(type==='pn'){
+      row.headline=content.headline||''; row.body=content.body||''; row.cta=content.cta||'';
+      refreshOutCell('hl-'+i,'pn',i,'headline','Headline',row.headline);
+      refreshOutCell('bd-'+i,'pn',i,'body','Body',row.body);
+      refreshOutCell('ct-'+i,'pn',i,'cta','CTA',row.cta);
+    } else {
+      row.imageCopy=content.image_copy||''; row.message=content.message||'';
+      refreshOutCell('ic-'+i,'wa',i,'imageCopy','Image Copy',row.imageCopy);
+      refreshOutCell('msg-'+i,'wa',i,'message','Message',row.message);
+    }
+    row.status='done';
+    document.getElementById('st-'+type+'-'+i).innerHTML=pill('done');
+    updateCounter(type);
+  } catch(err){
+    row.status='error';
+    document.getElementById('st-'+type+'-'+i).innerHTML=pill('error');
+    var msg=err.message||'Unknown error';
+    if(msg.indexOf('429')>=0||msg.toLowerCase().indexOf('rate')>=0) msg='Rate limit hit — Groq free tier has limits. Rows will retry with delay on Generate All.';
+    toast('Row '+(i+1)+' failed: '+msg, true);
+    updateCounter(type);
+  }
+}
+
+async function retryFailed(type){
+  var rows=type==='pn'?pnRows:waRows;
+  var failed=rows.filter(function(r){return r.status==='error';});
+  if(failed.length===0){toast('No failed rows to retry.'); return;}
+  toast('Retrying '+failed.length+' failed rows...');
+  for(var i=0;i<rows.length;i++){
+    if(rows[i].status==='error'){
+      await generateRow(type, i);
+      if(i<rows.length-1) await new Promise(function(r){setTimeout(r,3000);});
+    }
+  }
+  toast('Retry complete');
+}
+
+async function generateAll(type){
+  if(!apiKey){toast('Please enter and save your Groq API key first.', true); return;}
+  var rows=type==='pn'?pnRows:waRows;
+  var btn=document.getElementById('genAll'+(type==='pn'?'Pn':'Wa'));
+  btn.disabled=true;
+  document.getElementById('progWrap').style.display='block';
+  var done=0, failed=0;
+  for(var i=0;i<rows.length;i++){
+    document.getElementById('progBar').style.width=Math.round(((i+1)/rows.length)*100)+'%';
+    var attempts=0, success=false;
+    while(attempts<3 && !success){
+      await generateRow(type, i);
+      if(rows[i].status==='done'){ success=true; done++; }
+      else if(rows[i].status==='error'){
+        attempts++;
+        if(attempts<3){ var waitSec=attempts*8; toast('Rate limit on row '+(i+1)+' — waiting '+waitSec+'s...', true); await new Promise(function(r){setTimeout(r,waitSec*1000);}); rows[i].status='pending'; document.getElementById('st-'+type+'-'+i).innerHTML=pill('pending'); }
+        else { failed++; }
+      } else { break; }
+    }
+    if(i<rows.length-1) await new Promise(function(r){setTimeout(r,3000);});
+  }
+  document.getElementById('progWrap').style.display='none';
+  btn.disabled=false;
+  var msg=done+' of '+rows.length+' rows generated';
+  if(failed>0) msg+=' — '+failed+' still failed (use Retry Failed)';
+  toast(msg, failed>0);
+  updateCounter(type);
+}
+
+// ── PROMPTS ───────────────────────────────────────────────────
+function buildContext(row, type){
+  var bankKey=row.isSale?'sale':row.referral==='Referral'?'referral':'general';
+  var learnCtx=getLearnContext(bankKey, type);
+  var toneInstruction=TONE_INSTRUCTIONS[row.tone]||'';
+  var referralCtx='';
+  if(row.referral==='Referral') referralCtx='\nREFERRAL CONTEXT: Referral campaign. Code: '+row.refCode+'. Include naturally — feel like sharing with a friend.';
+  var saleCtx='';
+  if(row.isSale && activeSale && activeSale.status==='active'){
+    var matched=getSaleCodeForSegment(row.segment);
+    saleCtx='\nSALE CONTEXT: Active sale — "'+activeSale.name+'". '+activeSale.desc+'.';
+    if(matched) saleCtx+=' Discount code for '+matched.name+': '+matched.code+'. Include naturally.';
+    saleCtx+=' Valid till '+activeSale.endDate+'.';
+  }
+  return {bankKey:bankKey, learnCtx:learnCtx, toneInstruction:toneInstruction, referralCtx:referralCtx, saleCtx:saleCtx};
+}
+
+async function callPn(row){
+  var ctx=buildContext(row,'pn');
+  var hasGood=learnBank[ctx.bankKey].pn.some(function(x){return x.tier==='good';});
+  var hasPoor=learnBank[ctx.bankKey].pn.some(function(x){return x.tier==='poor';});
+  var learnNote='';
+  if(hasGood) learnNote+=' Prioritise matching HIGH PERFORMING examples.';
+  if(hasPoor) learnNote+=' Strictly avoid POOR PERFORMING patterns.';
+
+  var prompt = [
+    'You are a push notification copywriter for Teji Mandi.',
+    '',
+    BRAND,
+    '',
+    'Study these approved examples and match their tone:',
+    PN_BASE,
+    ctx.learnCtx,
+    '',
+    'TONE INSTRUCTION: ' + ctx.toneInstruction,
+    ctx.referralCtx,
+    ctx.saleCtx,
+    '',
+    '── HEADLINE RULES (most important) ──',
+    PN_HEADLINE_RULES,
+    '',
+    'Generate a push notification. Return ONLY valid JSON: {"headline":"...","body":"...","cta":"..."}',
+    '',
+    'Output rules:',
+    '- headline: follow the HEADLINE RULES above strictly. Max 55 chars.',
+    '- body: max 110 chars. Reinforce the tone. ONLY use data from inputs. No invented numbers.',
+    '- cta: max 25 chars. Action verb + product direction.',
+    '- If referral or sale, include the code naturally.',
+    '- No markdown outside the JSON.' + learnNote,
+    '',
+    'Inputs:',
+    'Segment: ' + row.segment,
+    'Campaign Type: ' + row.campaign,
+    'Performance: ' + (row.performance || 'Not provided'),
+    'Tone: ' + row.tone,
+    (row.notes ? 'Revision note: ' + row.notes : '')
+  ].filter(function(l){ return l !== undefined; }).join('\n');
+
+  return await callAPI(prompt);
+}
+
+async function callWa(row){
+  var ctx=buildContext(row,'wa');
+  var hasGood=learnBank[ctx.bankKey].wa.some(function(x){return x.tier==='good';});
+  var hasPoor=learnBank[ctx.bankKey].wa.some(function(x){return x.tier==='poor';});
+  var learnNote='';
+  if(hasGood) learnNote+=' Prioritise matching HIGH PERFORMING examples.';
+  if(hasPoor) learnNote+=' Strictly avoid POOR PERFORMING patterns.';
+  var prompt='You are a WhatsApp copywriter for Teji Mandi.\n\n'+BRAND+'\n\nStyle guide:\n'+WA_STYLE+ctx.learnCtx+'\n\nTONE INSTRUCTION: '+ctx.toneInstruction+ctx.referralCtx+ctx.saleCtx+'\n\nGenerate WhatsApp content. Return ONLY valid JSON: {"image_copy":"...","message":"..."}\n\nRules:\n- image_copy: max 60 chars. Bold, punchy overlay text. Apply the tone.\n- message: 160-230 chars. Hook then main point then CTA. Use newlines. Reflect the tone throughout.\n- If referral or sale, include the code naturally.\n- ONLY use data from inputs. No markdown outside the JSON.'+learnNote+'\n\nInputs:\nSegment: '+row.segment+'\nConversion Event: '+row.conversion+'\nCampaign Type: '+row.campaign+'\nTone: '+row.tone+(row.notes?'\nRevision note: '+row.notes:'');
+  return await callAPI(prompt);
+}
+
+async function callAPI(prompt){
+  var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:600,temperature:0.75,response_format:{type:'json_object'},messages:[{role:'system',content:'You are a copywriter for Teji Mandi, an Indian investment research platform. Always respond with a single valid JSON object only. No preamble, no markdown, no explanation.'},{role:'user',content:prompt}]})
+  });
+  if(!res.ok){var err=await res.json().catch(function(){return{};});throw new Error((err.error&&err.error.message)||'API error '+res.status);}
+  var data=await res.json();
+  var text=data.choices[0].message.content.replace(/```json|```/g,'').trim();
+  return JSON.parse(text);
+}
+
+// ── EXPORT ────────────────────────────────────────────────────
+function exportExcel(){
+  var wb=XLSX.utils.book_new();
+  var pnData=[['Segment','Campaign Type','Performance','Tone','Referral','Ref Code','Sale Included','Status','Headline','Body Copy','CTA','Revision Note','Real Performance (stars)']];
+  pnRows.forEach(function(r){pnData.push([r.segment,r.campaign,r.performance,r.tone||'',r.referral||'',r.refCode||'',r.isSale?'Yes':'No',r.status,r.headline,r.body,r.cta,r.notes,r.rating||'']);});
+  var waData=[['Segment','Conversion Event','Campaign Type','Tone','Referral','Ref Code','Sale Included','Status','Image Copy','Message Body','Revision Note','Real Performance (stars)']];
+  waRows.forEach(function(r){waData.push([r.segment,r.conversion,r.campaign,r.tone||'',r.referral||'',r.refCode||'',r.isSale?'Yes':'No',r.status,r.imageCopy,r.message,r.notes,r.rating||'']);});
+  var wsPn=XLSX.utils.aoa_to_sheet(pnData);
+  var wsWa=XLSX.utils.aoa_to_sheet(waData);
+  wsPn['!cols']=[24,18,30,16,14,14,10,10,22,42,16,22,12].map(function(w){return{wch:w};});
+  wsWa['!cols']=[24,18,18,16,14,14,10,10,22,48,22,12].map(function(w){return{wch:w};});
+  XLSX.utils.book_append_sheet(wb,wsPn,'Push Notifications');
+  XLSX.utils.book_append_sheet(wb,wsWa,'WhatsApp');
+  XLSX.writeFile(wb,'TejiMandi_Generated_Content_v9.xlsx');
+  toast('Excel exported');
+}
+
+function toast(msg,isError){var el=document.getElementById('toast'); el.textContent=msg; el.style.background=isError?'#C0392B':'#1A1A2E'; el.classList.add('show'); setTimeout(function(){el.classList.remove('show');},4000);}
+
+// ── INIT ─────────────────────────────────────────────────────
+updateSaleUI();
+renderTable('pn'); renderTable('wa');
+updateCounter('pn'); updateCounter('wa');
+</script>
+</body>
+</html>
