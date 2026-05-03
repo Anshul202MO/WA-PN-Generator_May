@@ -306,11 +306,11 @@ td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#ff
 
     <div id="qe-pn-area">
       <div class="qe-hint">
-        Format per line: <code>Segment | Campaign Type | Performance Note</code><br>
-        Example: <code>Flagship non-subscriber | New user activation | 33.5% returns last quarter</code><br>
-        Each line = one row. Leave Performance Note blank if you don't have data.
+        Format per line: <code>Segment | Campaign Type | Recent Data (optional)</code><br>
+        Example: <code>Flagship non-subscriber | New user activation | +33.5% returns last quarter</code><br>
+        Each line = one row. The third part is optional — skip it if you don't have a specific number to highlight.
       </div>
-      <textarea class="qe-textarea" id="qeInputPn" placeholder="Flagship non-subscriber | New user activation | 33.5% returns last quarter&#10;Multiplier expiring | Renewal | Portfolio up 18% this month&#10;Xpress non-subscriber | Trade calls | Avg 12% per trade call"></textarea>
+      <textarea class="qe-textarea" id="qeInputPn" placeholder="Flagship non-subscriber | New user activation | +33.5% returns last quarter&#10;Multiplier expiring | Renewal&#10;Xpress non-subscriber | Trade calls | Avg 12% per trade call"></textarea>
       <div class="qe-btns">
         <button class="btn btn-red btn-sm" onclick="parseQuickEntry('pn')">➕ Add these rows to table</button>
         <button class="btn btn-out btn-sm" onclick="clearQeInput('pn')">Clear</button>
@@ -371,7 +371,7 @@ td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#ff
         <th style="width:20px">#</th>
         <th style="min-width:130px">Segment</th>
         <th style="min-width:110px">Campaign Type</th>
-        <th style="min-width:140px">Performance Input</th>
+        <th style="min-width:140px">Recent Data <span style="font-weight:400;opacity:.6">(optional)</span></th>
         <th class="tonec" style="min-width:110px">Tonality</th>
         <th class="refc" style="min-width:120px">Referral</th>
         <th class="salec" style="min-width:90px">Sale</th>
@@ -932,9 +932,10 @@ function makeOutCell(type, i, field, label, value){
   wrap.appendChild(lbl); wrap.appendChild(ta); return wrap;
 }
 
-function makeInputTd(rowCount, value, onChange){
+function makeInputTd(rowCount, value, onChange, placeholder){
   var td = document.createElement('td');
   var ta = document.createElement('textarea'); ta.className='ifield'; ta.rows=rowCount; ta.value=value||'';
+  if(placeholder) ta.placeholder = placeholder;
   ta.addEventListener('change', function(){ onChange(this.value); });
   td.appendChild(ta); return td;
 }
@@ -983,7 +984,7 @@ function makeRow(type, row, i){
   if(type==='pn'){
     tr.appendChild(makeInputTd(3, row.segment, function(v){pnRows[i].segment=v;}));
     tr.appendChild(makeInputTd(2, row.campaign, function(v){pnRows[i].campaign=v;}));
-    tr.appendChild(makeInputTd(3, row.performance, function(v){pnRows[i].performance=v;}));
+    tr.appendChild(makeInputTd(3, row.performance, function(v){pnRows[i].performance=v;}, 'e.g. +33% returns last quarter — leave blank if none'));
   } else {
     tr.appendChild(makeInputTd(3, row.segment, function(v){waRows[i].segment=v;}));
     tr.appendChild(makeInputTd(2, row.conversion, function(v){waRows[i].conversion=v;}));
