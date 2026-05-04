@@ -49,19 +49,28 @@ main{max-width:1600px;margin:0 auto;padding:20px 16px 60px}
 .fi:focus{outline:none;border-color:var(--gold)}
 .api-saved{color:var(--green);font-size:11px;font-weight:600;display:none}
 
-/* ── QUICK ENTRY FORM ── */
+/* ── QUICK ENTRY GRID ── */
 .qe-section{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
 .qe-section h3{font-family:"DM Serif Display",serif;font-size:16px;color:var(--navy);margin-bottom:4px}
 .qe-section p{font-size:11px;color:var(--muted);margin-bottom:12px}
 .qe-tabs{display:flex;gap:4px;margin-bottom:12px}
 .qe-tab{background:transparent;border:1.5px solid var(--border);border-radius:6px;padding:4px 14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);font-family:"DM Sans",sans-serif;transition:all .15s}
 .qe-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-.qe-hint{font-size:11px;color:var(--muted);margin-bottom:8px;padding:8px 10px;background:#f9f8f5;border-radius:6px;border-left:3px solid var(--gold)}
-.qe-hint code{background:#efe9d8;padding:1px 4px;border-radius:3px;font-size:10px;font-family:monospace}
-.qe-textarea{width:100%;min-height:120px;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);background:#fafaf8;resize:vertical;line-height:1.7}
-.qe-textarea:focus{outline:none;border-color:var(--red);background:#fff}
-.qe-textarea::placeholder{color:#bbb;font-style:italic}
-.qe-btns{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.qe-hint{font-size:11px;color:var(--muted);margin-bottom:10px;padding:8px 10px;background:#f9f8f5;border-radius:6px;border-left:3px solid var(--gold);line-height:1.5}
+.qe-req{color:var(--red);font-weight:700}
+.qe-opt{color:var(--muted);font-weight:400;font-style:italic}
+.qe-grid-wrap{overflow-x:auto;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px}
+.qe-grid{width:100%;border-collapse:collapse;font-size:12px}
+.qe-grid thead th{background:#f2f0eb;color:var(--navy);padding:7px 10px;text-align:left;font-size:11px;font-weight:700;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.qe-grid tbody tr:nth-child(even){background:#fafaf8}
+.qe-grid tbody td{padding:3px 4px;border-bottom:1px solid #ece8e0;vertical-align:middle}
+.qe-grid tbody td:first-child{text-align:center;color:var(--muted);font-size:10px;font-weight:600;width:24px;padding:0 4px}
+.qe-cell{width:100%;border:1.5px solid transparent;border-radius:5px;padding:5px 8px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);background:transparent;resize:none;min-height:32px;line-height:1.4;transition:border-color .15s,background .15s}
+.qe-cell:focus{outline:none;border-color:var(--red);background:#fff}
+.qe-cell::placeholder{color:#ccc;font-style:italic}
+.qe-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:color .15s}
+.qe-del:hover{color:var(--red);background:#fff0f0}
+.qe-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .qe-parse-msg{font-size:11px;color:var(--green);font-weight:600;display:none}
 .qe-parse-err{font-size:11px;color:var(--red);display:none}
 
@@ -296,39 +305,59 @@ td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#ff
 
   <!-- ── QUICK ENTRY FORM ── -->
   <div class="qe-section">
-    <h3>✏️ Quick Entry — paste your campaign brief</h3>
-    <p>Type or paste each campaign on a new line. Use the format shown — or just fill in what you have and the tool will do its best.</p>
+    <h3>✏️ Campaign Brief — fill in your rows</h3>
+    <p>Type directly into the cells below — one row per campaign. All other settings (tone, referral, sale) can be adjusted in the main table after adding.</p>
 
     <div class="qe-tabs">
       <button class="qe-tab active" id="qeTabPn" onclick="switchQeTab('pn')">📱 Push Notification rows</button>
       <button class="qe-tab" id="qeTabWa" onclick="switchQeTab('wa')">💬 WhatsApp rows</button>
     </div>
 
+    <!-- PN ENTRY TABLE -->
     <div id="qe-pn-area">
-      <div class="qe-hint">
-        Format per line: <code>Segment | Campaign Type | Recent Data (optional)</code><br>
-        Example: <code>Flagship non-subscriber | New user activation | +33.5% returns last quarter</code><br>
-        Each line = one row. The third part is optional — skip it if you don't have a specific number to highlight.
+      <div class="qe-hint">Fill in the cells. <strong>Segment</strong> and <strong>Campaign Type</strong> are required. <strong>Recent Data</strong> is optional — add a specific number if you have one (e.g. +33% returns).</div>
+      <div class="qe-grid-wrap">
+        <table class="qe-grid" id="qeGridPn">
+          <thead>
+            <tr>
+              <th style="width:24px"></th>
+              <th>Segment <span class="qe-req">*</span></th>
+              <th>Campaign Type <span class="qe-req">*</span></th>
+              <th>Recent Data <span class="qe-opt">(optional)</span></th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="qeBodyPn"></tbody>
+        </table>
       </div>
-      <textarea class="qe-textarea" id="qeInputPn" placeholder="Flagship non-subscriber | New user activation | +33.5% returns last quarter&#10;Multiplier expiring | Renewal&#10;Xpress non-subscriber | Trade calls | Avg 12% per trade call"></textarea>
       <div class="qe-btns">
-        <button class="btn btn-red btn-sm" onclick="parseQuickEntry('pn')">➕ Add these rows to table</button>
-        <button class="btn btn-out btn-sm" onclick="clearQeInput('pn')">Clear</button>
+        <button class="btn btn-out btn-sm" onclick="addQeRow('pn')">+ Add Row</button>
+        <button class="btn btn-red btn-sm" onclick="commitQeRows('pn')">➕ Add to table</button>
         <span class="qe-parse-msg" id="qeParseMsgPn"></span>
         <span class="qe-parse-err" id="qeParseErrPn"></span>
       </div>
     </div>
 
+    <!-- WA ENTRY TABLE -->
     <div id="qe-wa-area" class="hidden">
-      <div class="qe-hint">
-        Format per line: <code>Segment | Conversion Event | Campaign Type</code><br>
-        Example: <code>Flagship non-subscriber | Subscribe | New user activation</code><br>
-        Each line = one row.
+      <div class="qe-hint">Fill in the cells. <strong>Segment</strong> and <strong>Campaign Type</strong> are required. <strong>Conversion Event</strong> is what you want the user to do (e.g. Subscribe, Renew).</div>
+      <div class="qe-grid-wrap">
+        <table class="qe-grid" id="qeGridWa">
+          <thead>
+            <tr>
+              <th style="width:24px"></th>
+              <th>Segment <span class="qe-req">*</span></th>
+              <th>Conversion Event</th>
+              <th>Campaign Type <span class="qe-req">*</span></th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="qeBodyWa"></tbody>
+        </table>
       </div>
-      <textarea class="qe-textarea" id="qeInputWa" placeholder="Flagship non-subscriber | Subscribe | New user activation&#10;Multiplier expiring | Renew | Renewal campaign&#10;Xpress non-subscriber | Subscribe | Trade call promo"></textarea>
       <div class="qe-btns">
-        <button class="btn btn-red btn-sm" onclick="parseQuickEntry('wa')">➕ Add these rows to table</button>
-        <button class="btn btn-out btn-sm" onclick="clearQeInput('wa')">Clear</button>
+        <button class="btn btn-out btn-sm" onclick="addQeRow('wa')">+ Add Row</button>
+        <button class="btn btn-red btn-sm" onclick="commitQeRows('wa')">➕ Add to table</button>
         <span class="qe-parse-msg" id="qeParseMsgWa"></span>
         <span class="qe-parse-err" id="qeParseErrWa"></span>
       </div>
@@ -373,7 +402,7 @@ td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#ff
         <th style="min-width:110px">Campaign Type</th>
         <th style="min-width:140px">Recent Data <span style="font-weight:400;opacity:.6">(optional)</span></th>
         <th class="tonec" style="min-width:110px">Tonality</th>
-        <th class="refc" style="min-width:120px">Referral</th>
+        <th class="refc" style="min-width:130px">Referral / Renewal</th>
         <th class="salec" style="min-width:90px">Sale</th>
         <th style="min-width:75px">Status</th>
         <th class="out" style="min-width:145px">Headline</th>
@@ -410,7 +439,7 @@ td.tonec{background:#fdf0ff} td.refc{background:#f0f8ff} td.salec{background:#ff
         <th style="min-width:110px">Conversion Event</th>
         <th style="min-width:110px">Campaign Type</th>
         <th class="tonec" style="min-width:110px">Tonality</th>
-        <th class="refc" style="min-width:120px">Referral</th>
+        <th class="refc" style="min-width:130px">Referral / Renewal</th>
         <th class="salec" style="min-width:90px">Sale</th>
         <th style="min-width:75px">Status</th>
         <th class="out" style="min-width:145px">Image Copy</th>
@@ -517,17 +546,15 @@ function switchTab(tab){
 }
 
 // ── QUICK ENTRY TAB ───────────────────────────────────────────
+var qeDataPn = []; // array of {segment, campaign, performance}
+var qeDataWa = []; // array of {segment, conversion, campaign}
+
 function switchQeTab(tab){
   currentQeTab = tab;
   document.getElementById('qe-pn-area').classList.toggle('hidden', tab !== 'pn');
   document.getElementById('qe-wa-area').classList.toggle('hidden', tab !== 'wa');
   document.getElementById('qeTabPn').classList.toggle('active', tab === 'pn');
   document.getElementById('qeTabWa').classList.toggle('active', tab === 'wa');
-}
-
-function clearQeInput(type){
-  document.getElementById(type === 'pn' ? 'qeInputPn' : 'qeInputWa').value = '';
-  showQeMsg(type, '', '');
 }
 
 function showQeMsg(type, ok, err){
@@ -537,37 +564,96 @@ function showQeMsg(type, ok, err){
   errEl.textContent = err; errEl.style.display = err ? 'inline' : 'none';
 }
 
-function parseQuickEntry(type){
-  var rawEl = document.getElementById(type === 'pn' ? 'qeInputPn' : 'qeInputWa');
-  var raw = rawEl.value.trim();
-  if(!raw){ showQeMsg(type, '', 'Nothing to parse — type your campaign details first.'); return; }
-  var lines = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
-  if(lines.length === 0){ showQeMsg(type, '', 'No valid lines found.'); return; }
-  var added = 0;
-  lines.forEach(function(line){
-    var parts = line.split('|').map(function(p){ return p.trim(); });
-    if(type === 'pn'){
-      var row = newRow('pn', {
-        segment: parts[0] || '',
-        campaign: parts[1] || '',
-        performance: parts[2] || ''
-      });
-      pnRows.push(row);
+function addQeRow(type){
+  if(type==='pn'){
+    qeDataPn.push({segment:'', campaign:'', performance:''});
+    renderQeGrid('pn');
+  } else {
+    qeDataWa.push({segment:'', conversion:'', campaign:''});
+    renderQeGrid('wa');
+  }
+}
+
+function removeQeRow(type, idx){
+  if(type==='pn') qeDataPn.splice(idx,1);
+  else qeDataWa.splice(idx,1);
+  renderQeGrid(type);
+}
+
+function renderQeGrid(type){
+  var tbody = document.getElementById(type==='pn' ? 'qeBodyPn' : 'qeBodyWa');
+  var data = type==='pn' ? qeDataPn : qeDataWa;
+  tbody.innerHTML = '';
+  if(data.length === 0){
+    var tr = document.createElement('tr');
+    var td = document.createElement('td'); td.colSpan=5;
+    td.style.cssText='text-align:center;padding:14px;color:#ccc;font-size:11px;font-style:italic';
+    td.textContent='No rows yet — click "+ Add Row" to start';
+    tr.appendChild(td); tbody.appendChild(tr); return;
+  }
+  data.forEach(function(item, idx){
+    var tr = document.createElement('tr');
+    // row number
+    var tdNum = document.createElement('td'); tdNum.textContent = idx+1; tr.appendChild(tdNum);
+    if(type==='pn'){
+      tr.appendChild(makeQeCell(item, 'segment', 'e.g. Flagship non-subscriber', type, idx));
+      tr.appendChild(makeQeCell(item, 'campaign', 'e.g. New user activation', type, idx));
+      tr.appendChild(makeQeCell(item, 'performance', 'e.g. +33% returns — optional', type, idx));
     } else {
-      var row = newRow('wa', {
-        segment: parts[0] || '',
-        conversion: parts[1] || '',
-        campaign: parts[2] || ''
-      });
-      waRows.push(row);
+      tr.appendChild(makeQeCell(item, 'segment', 'e.g. Multiplier expiring', type, idx));
+      tr.appendChild(makeQeCell(item, 'conversion', 'e.g. Renew', type, idx));
+      tr.appendChild(makeQeCell(item, 'campaign', 'e.g. Renewal campaign', type, idx));
     }
-    added++;
+    // delete button
+    var tdDel = document.createElement('td');
+    var btn = document.createElement('button'); btn.className='qe-del'; btn.textContent='✕';
+    btn.onclick = (function(t,i){ return function(){ removeQeRow(t,i); }; })(type, idx);
+    tdDel.appendChild(btn); tr.appendChild(tdDel);
+    tbody.appendChild(tr);
   });
+}
+
+function makeQeCell(item, field, placeholder, type, idx){
+  var td = document.createElement('td');
+  var ta = document.createElement('textarea'); ta.className='qe-cell'; ta.rows=1;
+  ta.placeholder = placeholder; ta.value = item[field] || '';
+  ta.addEventListener('input', function(){
+    var data = type==='pn' ? qeDataPn : qeDataWa;
+    if(data[idx]) data[idx][field] = this.value;
+    // auto-grow
+    this.style.height='auto'; this.style.height=this.scrollHeight+'px';
+  });
+  // prevent Tab from leaving field — move to next cell instead
+  ta.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); }
+  });
+  td.appendChild(ta); return td;
+}
+
+function commitQeRows(type){
+  var data = type==='pn' ? qeDataPn : qeDataWa;
+  var valid = data.filter(function(r){
+    return (r.segment||'').trim() && (r.campaign||'').trim();
+  });
+  if(valid.length === 0){
+    showQeMsg(type, '', 'Please fill in at least Segment and Campaign Type before adding.');
+    return;
+  }
+  valid.forEach(function(r){
+    if(type==='pn'){
+      pnRows.push(newRow('pn', {segment:r.segment.trim(), campaign:r.campaign.trim(), performance:(r.performance||'').trim()}));
+    } else {
+      waRows.push(newRow('wa', {segment:r.segment.trim(), conversion:(r.conversion||'').trim(), campaign:r.campaign.trim()}));
+    }
+  });
+  // clear the grid
+  if(type==='pn') qeDataPn=[];
+  else qeDataWa=[];
+  renderQeGrid(type);
   renderTable(type);
   updateCounter(type);
-  showQeMsg(type, '✓ ' + added + ' row' + (added > 1 ? 's' : '') + ' added to the table below.', '');
-  // Switch to the right tab to show result
   switchTab(type);
+  showQeMsg(type, '✓ '+valid.length+' row'+(valid.length>1?'s':'')+' added to the table below.', '');
 }
 
 // ── UPLOAD ZONE TOGGLE ────────────────────────────────────────
@@ -899,14 +985,37 @@ function toneSelect(type, i, val){
 function referralSelect(type, i, row){
   var wrap = document.createElement('div');
   var sel = document.createElement('select'); sel.className = 'sfield';
-  ['Non-Referral','Referral'].forEach(function(v){ var o = document.createElement('option'); o.value=v; o.textContent=v; if(v===row.referral) o.selected=true; sel.appendChild(o); });
-  var codeWrap = document.createElement('div'); codeWrap.className = 'ref-code-wrap'; codeWrap.style.display = row.referral==='Referral'?'block':'none';
-  var codeLbl = document.createElement('div'); codeLbl.className = 'ref-req'; codeLbl.textContent = '* Referral Code (required)';
-  var codeInp = document.createElement('input'); codeInp.className = 'ref-code-input'; codeInp.type='text'; codeInp.placeholder='e.g. FRIEND20'; codeInp.value=row.refCode||'';
+  ['Standard','Referral','Renewal'].forEach(function(v){
+    var o = document.createElement('option'); o.value=v; o.textContent=v;
+    // migrate old 'Non-Referral' value
+    if((v==='Standard' && (!row.referral || row.referral==='Non-Referral')) || v===row.referral) o.selected=true;
+    sel.appendChild(o);
+  });
+
+  // Referral info note (no code needed)
+  var refNote = document.createElement('div');
+  refNote.style.cssText = 'margin-top:5px;font-size:9px;color:#1E6B3A;background:#f0fff6;border:1px solid #a0ddb8;border-radius:4px;padding:4px 6px;line-height:1.4';
+  refNote.textContent = '✓ Offer auto-injected: Earn ₹300 & friend gets 15% off';
+  refNote.style.display = (row.referral==='Referral') ? 'block' : 'none';
+
+  // Renewal code wrap (mandatory)
+  var codeWrap = document.createElement('div'); codeWrap.className = 'ref-code-wrap';
+  codeWrap.style.display = (row.referral==='Renewal') ? 'block' : 'none';
+  var codeLbl = document.createElement('div'); codeLbl.className = 'ref-req'; codeLbl.textContent = '* Renewal Code (required)';
+  var codeInp = document.createElement('input'); codeInp.className = 'ref-code-input'; codeInp.type='text';
+  codeInp.placeholder='e.g. RENEW20'; codeInp.value=row.refCode||'';
   codeInp.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].refCode=this.value; });
   codeWrap.appendChild(codeLbl); codeWrap.appendChild(codeInp);
-  sel.addEventListener('change', function(){ var rows=type==='pn'?pnRows:waRows; rows[i].referral=this.value; codeWrap.style.display=this.value==='Referral'?'block':'none'; });
-  wrap.appendChild(sel); wrap.appendChild(codeWrap);
+
+  sel.addEventListener('change', function(){
+    var rows=type==='pn'?pnRows:waRows;
+    rows[i].referral=this.value;
+    if(this.value!=='Renewal') rows[i].refCode='';
+    refNote.style.display = this.value==='Referral' ? 'block' : 'none';
+    codeWrap.style.display = this.value==='Renewal' ? 'block' : 'none';
+  });
+
+  wrap.appendChild(sel); wrap.appendChild(refNote); wrap.appendChild(codeWrap);
   return wrap;
 }
 
@@ -1026,7 +1135,7 @@ async function generateRow(type, i){
   if(!apiKey){ toast('Please enter and save your Groq API key first.', true); return; }
   var rows = type==='pn'?pnRows:waRows;
   var row = rows[i];
-  if(row.referral==='Referral' && !row.refCode.trim()){ toast('Row '+(i+1)+': Referral code is required before generating.', true); return; }
+  if(row.referral==='Renewal' && !row.refCode.trim()){ toast('Row '+(i+1)+': Renewal code is required before generating.', true); return; }
   row.status='running';
   document.getElementById('st-'+type+'-'+i).innerHTML=pill('running');
   try{
@@ -1102,8 +1211,19 @@ function buildContext(row, type){
   var bankKey=row.isSale?'sale':row.referral==='Referral'?'referral':'general';
   var learnCtx=getLearnContext(bankKey, type);
   var toneInstruction=TONE_INSTRUCTIONS[row.tone]||'';
+
   var referralCtx='';
-  if(row.referral==='Referral') referralCtx='\nREFERRAL CONTEXT: Referral campaign. Code: '+row.refCode+'. Include naturally — feel like sharing with a friend.';
+  if(row.referral==='Referral'){
+    referralCtx='\nREFERRAL CONTEXT: This is a referral campaign. The standard offer is: "Earn ₹300 when your friend subscribes, and your friend gets 15% off their first plan." Weave this offer naturally into the copy — it should feel like sharing a benefit with a friend, not a sales pitch. Do NOT invent any other codes or amounts.';
+  }
+  if(row.referral==='Renewal'){
+    if(type==='pn'){
+      referralCtx='\nRENEWAL CONTEXT: This is a renewal campaign. The renewal discount code is: '+row.refCode+'. You MUST include this code in the BODY COPY (not the headline). Place it naturally, e.g. "Use code '+row.refCode+' to renew at a discount."';
+    } else {
+      referralCtx='\nRENEWAL CONTEXT: This is a renewal campaign. The renewal discount code is: '+row.refCode+'. You MUST include this code in BOTH the image_copy AND the message body. In image_copy, the code should be the most prominent element. In the message, include it naturally within the text.';
+    }
+  }
+
   var saleCtx='';
   if(row.isSale && activeSale && activeSale.status==='active'){
     var matched=getSaleCodeForSegment(row.segment);
@@ -1142,7 +1262,7 @@ async function callPn(row){
     '',
     'Output rules:',
     '- headline: follow the HEADLINE RULES above strictly. Max 55 chars.',
-    '- body: max 110 chars. Reinforce the tone. ONLY use data from inputs. No invented numbers.',
+    '- body: max 110 chars. Reinforce the tone. ONLY use data from inputs. No invented numbers. If renewal, the code MUST appear here.',
     '- cta: max 25 chars. Action verb + product direction.',
     '- If referral or sale, include the code naturally.',
     '- No markdown outside the JSON.' + learnNote,
@@ -1165,7 +1285,7 @@ async function callWa(row){
   var learnNote='';
   if(hasGood) learnNote+=' Prioritise matching HIGH PERFORMING examples.';
   if(hasPoor) learnNote+=' Strictly avoid POOR PERFORMING patterns.';
-  var prompt='You are a WhatsApp copywriter for Teji Mandi.\n\n'+BRAND+'\n\nStyle guide:\n'+WA_STYLE+ctx.learnCtx+'\n\nTONE INSTRUCTION: '+ctx.toneInstruction+ctx.referralCtx+ctx.saleCtx+'\n\nGenerate WhatsApp content. Return ONLY valid JSON: {"image_copy":"...","message":"..."}\n\nRules:\n- image_copy: max 60 chars. Bold, punchy overlay text. Apply the tone.\n- message: 160-230 chars. Hook then main point then CTA. Use newlines. Reflect the tone throughout.\n- If referral or sale, include the code naturally.\n- ONLY use data from inputs. No markdown outside the JSON.'+learnNote+'\n\nInputs:\nSegment: '+row.segment+'\nConversion Event: '+row.conversion+'\nCampaign Type: '+row.campaign+'\nTone: '+row.tone+(row.notes?'\nRevision note: '+row.notes:'');
+  var prompt='You are a WhatsApp copywriter for Teji Mandi.\n\n'+BRAND+'\n\nStyle guide:\n'+WA_STYLE+ctx.learnCtx+'\n\nTONE INSTRUCTION: '+ctx.toneInstruction+ctx.referralCtx+ctx.saleCtx+'\n\nGenerate WhatsApp content. Return ONLY valid JSON: {"image_copy":"...","message":"..."}\n\nRules:\n- image_copy: max 60 chars. Bold, punchy overlay text. Apply the tone. If renewal, the code MUST be the most prominent element in image_copy.\n- message: 160-230 chars. Hook then main point then CTA. Use newlines. Reflect the tone throughout. If renewal, the code MUST appear in the message.\n- If referral, weave in the ₹300 / 15% offer naturally.\n- ONLY use data from inputs. No markdown outside the JSON.'+learnNote+'\n\nInputs:\nSegment: '+row.segment+'\nConversion Event: '+row.conversion+'\nCampaign Type: '+row.campaign+'\nTone: '+row.tone+(row.notes?'\nRevision note: '+row.notes:'');
   return await callAPI(prompt);
 }
 
@@ -1204,6 +1324,10 @@ function toast(msg,isError){var el=document.getElementById('toast'); el.textCont
 updateSaleUI();
 renderTable('pn'); renderTable('wa');
 updateCounter('pn'); updateCounter('wa');
+// seed quick entry grids with 3 empty rows
+qeDataPn=[{segment:'',campaign:'',performance:''},{segment:'',campaign:'',performance:''},{segment:'',campaign:'',performance:''}];
+qeDataWa=[{segment:'',conversion:'',campaign:''},{segment:'',conversion:'',campaign:''},{segment:'',conversion:'',campaign:''}];
+renderQeGrid('pn'); renderQeGrid('wa');
 </script>
 </body>
 </html>
